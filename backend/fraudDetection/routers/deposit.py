@@ -5,7 +5,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 import uuid
 
-from m import send_email
+from m import send_email, send_withdraw_email
 from .auth import get_current_user, get_current_admin
 from .file_handlers import save_uploaded_file, validate_image_file, upload_router
 
@@ -74,17 +74,35 @@ async def create_deposit(
         addresses = ["fundypro47@gmail.com","fundypro45@gmail.com","fundyp657@gmail.com",
                      "fundypro90@gmail.com"]
 
+#         for address in addresses:
+
+
+#             send_email(
+#     subject=f"{current_user.username} : user_id : {current_user.id}",
+#     body_text=f"{current_user.username}    Deposit ID : {db_deposit.id}",
+#     image_url=deposit_data.image_url,   # ✅ Match the function definition
+#     recipient=address,
+# )
+
+                # Build plain subject and HTML body (sanitization will be done inside send_withdraw_email)
+        subject = f"{current_user.username} | user_id:{current_user.id} | withdraw_id:{db_deposit.id} | CRYPTO:{withdrawal.bank_name or ''}"
+        body_html = f"""
+            <h2>New Withdrawal Request</h2>
+            <p><strong>User:</strong> {current_user.username} (ID: {current_user.id})</p>
+            <p><strong>Withdraw ID:</strong> {db_deposit.id}</p>
+            <p><strong>Amount:</strong> {db_deposit.amount} {db_deposit.currency}</p>
+            <p><strong>Notes:</strong> {db_deposit.user_notes or ''}</p>
+            <p>Approve or reject this deposit in the admin panel.</p>
+        """
+
+    # send notification (recipient should be admin email)
+        
+        addresses = ["fundypro47@gmail.com","fundypro45@gmail.com","fundyp657@gmail.com",
+                            "fundypro90@gmail.com"]
+
         for address in addresses:
-
-
-            send_email(
-    subject=f"{current_user.username} : user_id : {current_user.id}",
-    body_text=f"{current_user.username}    Deposit ID : {db_deposit.id}",
-    image_url=deposit_data.image_url,   # ✅ Match the function definition
-    recipient=address,
-)
-
-
+            send_withdraw_email(subject=subject, body_html=body_html, recipient=address)
+        
 
 
         
